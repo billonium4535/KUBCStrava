@@ -72,6 +72,4 @@ def main():
         print(f"Total Distance:\n{total_distance:.2f} km / 200 km")
 
 
-if __name__ == "__main__":
-    main()
-
+main()
