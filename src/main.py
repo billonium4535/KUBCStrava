@@ -2,9 +2,11 @@ from datetime import datetime
 import requests
 import json
 import os
+import time
 
 # Strava API credentials
 json_details = json.load(open(f"{os.path.dirname(__file__)}/details.json"))
+json_distance = f"{os.path.dirname(__file__)}/distance.json"
 
 CLIENT_ID = json_details["CLIENT_ID"]
 CLIENT_SECRET = json_details["CLIENT_SECRET"]
@@ -55,21 +57,27 @@ def filter_run_distances(activities):
 
 
 def main():
-    total_distance = 0
-    activities = get_club_activities()
+    while True:
+        total_distance = 0
+        activities = get_club_activities()
 
-    with open(f"{os.path.dirname(__file__)}/data.json", 'w', encoding='utf-8') as f:
-        json.dump(activities, f, indent=4)
+        with open(f"{os.path.dirname(__file__)}/data.json", 'w', encoding='utf-8') as file:
+            json.dump(activities, file, indent=4)
+        file.close()
 
-    if not activities:
-        return
+        if not activities:
+            return
 
-    run_distances = filter_run_distances(activities)
+        run_distances = filter_run_distances(activities)
 
-    if run_distances:
-        for i in range(len(run_distances)):
-            total_distance += run_distances[i]
-        print(f"Total Distance:\n{total_distance:.2f} km / 200 km")
+        if run_distances:
+            for i in range(len(run_distances)):
+                total_distance += run_distances[i]
+            with open(json_distance, "w") as file:
+                json.dump({"value": f"{total_distance:.2f}"}, file, indent=4)
+            file.close()
+
+        time.sleep(60)
 
 
 main()
